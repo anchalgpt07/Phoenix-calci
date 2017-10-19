@@ -5,6 +5,8 @@ from kivymd.theming import ThemeManager
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 
+from sympy.parsing.sympy_parser import parse_expr
+from sympy import *
 from kivymd.label import MDLabel
 kvv="""
 
@@ -55,10 +57,11 @@ BoxLayout:
         halign:'right'
         padding:(20,0)
     ScreenManager:
+        id:screenmgr
         Screen:
             name: 'buttons'
             GridLayout:
-                cols:2
+                cols:3
                 GridLayout:
                     cols:3
                     MDFlatButton:
@@ -174,6 +177,59 @@ BoxLayout:
                         id:divide
                         text:'/'
                         on_release:out.text+='/'
+                MDIconButton:
+                    size_hint:(0.1,1)
+                    icon:'arrow-right'
+                    on_press:screenmgr.current='trigo'
+        Screen:
+            name:'trigo'
+
+            GridLayout:
+                cols:2
+                MDIconButton:
+                    size_hint:(0.1,1)
+                    icon:'arrow-left'
+                    on_press:screenmgr.current='buttons'
+                
+                GridLayout:
+                    cols:3
+                    MDFlatButton:
+                        on_release:out.text+='sin('
+                        size_hint:(1,1)
+                        MDLabel:
+                            text:'sin'
+                            font_size:20
+                            halign:'center'
+                    MDFlatButton:
+                        on_release:out.text+='cos('
+                        size_hint:(1,1)
+                        MDLabel:
+                            text:'cos'
+                            font_size:20
+                            halign:'center'
+                    MDFlatButton:
+                        on_release:out.text+='tan('
+                        size_hint:(1,1)
+                        MDLabel:
+                            text:'tan'
+                            font_size:20
+                            halign:'center'
+                    MDFlatButton:
+                        on_release:out.text+='('
+                        size_hint:(1,1)
+                        MDLabel:
+                            text:'('
+                            font_size:20
+                            halign:'center'
+                    MDFlatButton:
+                        on_release:out.text+=')'
+                        size_hint:(1,1)
+                        MDLabel:
+                            text:')'
+                            font_size:20
+                            halign:'center'
+                    
+                    
 
 """
 
@@ -212,9 +268,12 @@ class mainapp(BoxLayout):
         self.out.text=tex
 
     def equalcall(self,ins):
-        tex=self.out.text
-        tex=str(eval(tex))
-        self.out.text=tex
+        try:
+            expr=N(parse_expr(self.out.text,evaluate=True))
+            tex=str(expr)
+            self.out.text=tex
+        except:
+            pass
 
 class myapp(App):
     theme_cls=ThemeManager()
