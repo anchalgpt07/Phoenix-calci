@@ -5,7 +5,7 @@ from kivymd.theming import ThemeManager
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 
-from sympy.parsing.sympy_parser import parse_expr
+from sympy.parsing.sympy_parser import parse_expr,standard_transformations,implicit_multiplication_application
 from sympy import *
 from kivymd.label import MDLabel
 kvv="""
@@ -66,76 +66,76 @@ BoxLayout:
                     cols:3
                     MDFlatButton:
                         size_hint:(1,1)
-                        on_release:out.text+='1'
+                        on_press:out.text+='1'
                         MDLabel:
                             text:'1'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='2'
+                        on_press:out.text+='2'
                         size_hint:(1,1)
                         MDLabel:
                             text:'2'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='3'
+                        on_press:out.text+='3'
                         size_hint:(1,1)
                         MDLabel:
                             text:'3'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='4'
+                        on_press:out.text+='4'
                         size_hint:(1,1)
                         MDLabel:
                             text:'4'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='5'
+                        on_press:out.text+='5'
                         size_hint:(1,1)
                         MDLabel:
                             text:'5'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='6'
+                        on_press:out.text+='6'
                         size_hint:(1,1)
                         MDLabel:
                             text:'6'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='7'
+                        on_press:out.text+='7'
                         size_hint:(1,1)
                         MDLabel:
                             text:'7'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='8'
+                        on_press:out.text+='8'
                         size_hint:(1,1)
                         MDLabel:
                             text:'8'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='9'
+                        on_press:out.text+='9'
                         size_hint:(1,1)
                         MDLabel:
                             text:'9'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='.'
+                        on_press:out.text+='.'
                         size_hint:(1,1)
                         MDLabel:
                             text:'.'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='0'
+                        on_press:out.text+='0'
                         size_hint:(1,1)
                         MDLabel:
                             text:'0'
@@ -161,26 +161,28 @@ BoxLayout:
                         size_hint:(1,1)
                         id:plus
                         text:'+'
-                        on_release:out.text+='+'
+                        on_press:out.text+='+'
                     MDFlatButton:
                         size_hint:(1,1)
                         id:minus
                         text:'-'
-                        on_release:out.text+='-'
+                        on_press:out.text+='-'
                     MDFlatButton:
                         size_hint:(1,1)
                         id:multiply
                         text:'x'
-                        on_release:out.text+='*'
+                        on_press:out.text+='*'
                     MDFlatButton:
                         size_hint:(1,1)
                         id:divide
                         text:'/'
-                        on_release:out.text+='/'
+                        on_press:out.text+='/'
                 MDIconButton:
                     size_hint:(0.1,1)
                     icon:'arrow-right'
-                    on_press:screenmgr.current='trigo'
+                    on_press:
+                        screenmgr.transition.direction='left'
+                        screenmgr.current='trigo'
         Screen:
             name:'trigo'
 
@@ -189,40 +191,42 @@ BoxLayout:
                 MDIconButton:
                     size_hint:(0.1,1)
                     icon:'arrow-left'
-                    on_press:screenmgr.current='buttons'
+                    on_press:
+                        screenmgr.transition.direction='right'
+                        screenmgr.current='buttons'
                 
                 GridLayout:
                     cols:3
                     MDFlatButton:
-                        on_release:out.text+='sin('
+                        on_press:out.text+='sin('
                         size_hint:(1,1)
                         MDLabel:
                             text:'sin'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='cos('
+                        on_press:out.text+='cos('
                         size_hint:(1,1)
                         MDLabel:
                             text:'cos'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='tan('
+                        on_press:out.text+='tan('
                         size_hint:(1,1)
                         MDLabel:
                             text:'tan'
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+='('
+                        on_press:out.text+='('
                         size_hint:(1,1)
                         MDLabel:
                             text:'('
                             font_size:20
                             halign:'center'
                     MDFlatButton:
-                        on_release:out.text+=')'
+                        on_press:out.text+=')'
                         size_hint:(1,1)
                         MDLabel:
                             text:')'
@@ -247,7 +251,7 @@ class mainapp(BoxLayout):
         self.delbutton=self.numpad.ids['cancel_but']
         self.equalbutton=self.numpad.ids['equal_but']
         #Binds
-        self.delbutton.bind(on_release=self.delbut)
+        self.delbutton.bind(on_release=self.delholdclr,on_press=self.delbut)
         self.equalbutton.bind(on_release=self.equalcall)
         #Clock
         Clock.schedule_interval(self.outputloop,0)
@@ -266,10 +270,17 @@ class mainapp(BoxLayout):
         tex = self.out.text
         tex=tex[:-1]
         self.out.text=tex
+        Clock.schedule_once(self.clearall,1)
+    def clearall(self,ins):
+        self.out.text='0'
+
+    def delholdclr(self,ins):
+        Clock.unschedule(self.clearall)
 
     def equalcall(self,ins):
+        transformations = (standard_transformations + (implicit_multiplication_application, ))
         try:
-            expr=N(parse_expr(self.out.text,evaluate=True))
+            expr=N(parse_expr(self.out.text,transformations=transformations,evaluate=True))
             tex=str(expr)
             self.out.text=tex
         except:
